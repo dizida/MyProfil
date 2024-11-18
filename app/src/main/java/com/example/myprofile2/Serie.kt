@@ -1,8 +1,6 @@
 package com.example.myprofile2
 
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,12 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Movie
@@ -33,39 +30,38 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.NavController
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
-
 import com.example.myprofile2.formatReleaseDate
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilmScreen(
-    navController: NavController,
-    onNavigateToProfilScreen: () -> Unit,
-    onNavigateToSeries: () -> Unit,
-    onNavigateToActors: () -> Unit,
-    viewModel: MainViewModel
-) {
+fun SerieScreen(navController: NavController,
+                onNavigateToProfilScreen: () -> Unit,
+                onNavigateToFilm: () -> Unit,
+                onNavigateToSeries: () -> Unit,
+                onNavigateToActors: () -> Unit,
+                viewModel: MainViewModel) {
 
-    val movies by viewModel.movies.collectAsState()
-    val gridState = rememberLazyGridState()  // Utilise rememberLazyGridState pour la grille
 
-    LaunchedEffect(gridState) {
-        viewModel.getTrendingMovies()
+    val series by viewModel.series.collectAsState()
+    val serieGridState = rememberLazyGridState()  // Utilise rememberLazyGridState pour la grille
+
+    LaunchedEffect(serieGridState) {
+        viewModel.getPopularSeries()
     }
 
     Scaffold(
@@ -73,7 +69,7 @@ fun FilmScreen(
         topBar = {
             TopAppBar(
                 colors = topAppBarColors(
-                    containerColor = Color(0xFFFF5722),
+                    containerColor = Color(0xFF6200EE),
                     titleContentColor = Color.White,
                 ),
                 title = {
@@ -101,18 +97,20 @@ fun FilmScreen(
         },
         bottomBar = {
             BottomAppBar(
-                containerColor = Color(0xFFFF5722),
+                containerColor = Color(0xFF6200EE),
                 contentColor = Color.White,
             ) {
-                BottomNavigationBar(
+                SerieBottomNavigationBar(
                     navController = navController,
-                    onNavigateToFilm = {},
-                    onNavigateToSeries = { navController.navigate("series") },
-                    onNavigateToActors = { navController.navigate("actors") }
+                    onNavigateToFilm = {println("Nagigation to film screen")
+                        navController.navigate("film")},
+                    onNavigateToSeries = {println("Navigating to Series Screen")
+                        navController.navigate("series")},
+                    onNavigateToActors = {println("Navigating to Actors Screen")
+                        navController.navigate("actors")}
                 )
             }
         }
-
     ) { innerPadding ->
         CustomBackgroundColor()
         Column(
@@ -123,150 +121,39 @@ fun FilmScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LazyVerticalGrid(
-                state = gridState,
+                state = serieGridState,
                 columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                if (movies.isEmpty()) {
+                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (series.isEmpty()) {
                     item {
-                        Text(text = "Aucun film trouvé.")
+                        Text(text = "Aucunes séries trouvées.")
                     }
                 } else {
-                    items(movies) { movie ->
-                        MovieItem(movie, onClick = { movieId: Int ->
-                            navController.navigate("filmDetail/$movieId")
-                        })
+                    items(series) { serie ->
+                        SerieItem(serie)
                     }
                 }
             }
         }
     }
 }
-
-
-@Composable
-fun FilmDetailScreen(movieId: Int, viewModel: MainViewModel) {
-    // Récupérer les détails du film en utilisant l'ID
-    val movie by viewModel.movieDetails.collectAsState()
-    LaunchedEffect(movieId) {
-        viewModel.getMovieById(movieId)
-    }
-    movie?.let {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            // Afficher le backdrop en premier
-            AsyncImage(
-                model = "https://image.tmdb.org/t/p/w500${it.backdrop_path}",
-                contentDescription = it.title,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surface),
-                contentScale = ContentScale.Crop
-            )
-            // Afficher le poster, la date et le genre
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-            ) {
-                AsyncImage(
-                    model = "https://image.tmdb.org/t/p/w500${it.poster_path}",
-                    contentDescription = it.title,
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(180.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surface),
-                    contentScale = ContentScale.Crop
-                )
-                Column(
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Text(text = it.title, style = MaterialTheme.typography.headlineMedium)
-                    Text(text = "Date de sortie: ${it.release_date}", style = MaterialTheme.typography.bodyMedium)
-                    //Text(text = "Genre: ${it.genres.joinToString { genre -> genre.name }}", style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-            // Afficher le synopsis
-            Text(
-                text = "Synopsis",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            Text(text = it.overview, style = MaterialTheme.typography.bodyLarge)
-            // Afficher la tête d'affiche avec les acteurs
-            Text(
-                text = "Tête d'affiche",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-//                items(it.cast) { actor ->
-//                    Column(
-//                        horizontalAlignment = Alignment.CenterHorizontally,
-//                        modifier = Modifier.padding(8.dp)
-//                    ) {
-//                        AsyncImage(
-//                            model = "https://image.tmdb.org/t/p/w500${actor.profile_path}",
-//                            contentDescription = actor.name,
-//                            modifier = Modifier
-//                                .size(100.dp)
-//                                .clip(RoundedCornerShape(50.dp))
-//                                .background(MaterialTheme.colorScheme.surface),
-//                            contentScale = ContentScale.Crop
-//                        )
-//                        Text(text = actor.name, style = MaterialTheme.typography.bodyMedium)
-//                    }
-//                }
-            }
-        }
-    } ?: run {
-        Text("Chargement des détails du film...")
-    }
-}
-
-
-@Composable
-fun CustomBackgroundColor() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFF5722).copy(alpha = 0.5f)) // couleur personnalisée avec une opacité de 50%
-            .padding(16.dp)
-    ) {
-        // Votre contenu
-        Text("Contenu avec un arrière-plan personnalisé")
-    }
-}
-
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun MovieItem(movie: Movie, onClick: (Int) -> Unit) {
-    val formattedDate = formatReleaseDate(movie.release_date)
-    Column(
+fun SerieItem(serie: Serie) {
+    val formattedDate = formatReleaseDate(serie.first_air_date)
+    Column (
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+            .shadow(4.dp, shape = RoundedCornerShape(8.dp))
             .padding(8.dp)
-            .clickable { onClick(movie.id) }
-    ) {
+    ){
         AsyncImage(
-            model = "https://image.tmdb.org/t/p/w500${movie.poster_path}",
-            contentDescription = movie.title,
+            model = "https://image.tmdb.org/t/p/w500${serie.poster_path}",
+            contentDescription = serie.original_name,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
@@ -274,14 +161,14 @@ fun MovieItem(movie: Movie, onClick: (Int) -> Unit) {
                 .background(MaterialTheme.colorScheme.surface),
             contentScale = ContentScale.Fit
         )
-        Text(text = movie.title)
+        Text(text = serie.original_name)
         Text(text = formattedDate)
     }
 }
 
 
 @Composable
-fun BottomNavigationBar(
+fun SerieBottomNavigationBar(
     navController: NavController,
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
@@ -352,4 +239,3 @@ fun BottomNavigationBar(
         }
     }
 }
-
