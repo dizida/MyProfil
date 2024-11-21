@@ -1,6 +1,6 @@
 package com.example.myprofile2
 
-import com.example.myprofile2.ImageResult
+
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -18,23 +18,29 @@ interface TmdbAPI {
     @GET("trending/person/week")
     suspend fun getTrendingPerson(@Query("api_key") apiKey: String): TmdbResultActors
 
-    @GET("movie/{movie_id}/images")
-    suspend fun getMovieImages(
-        @Path("movie_id") movieId: Int,
-        @Query("api_key") apiKey: String
-    ): ImageResult
-
-    @GET("tv/{tv_id}/images")
-    suspend fun getSerieImages(
-        @Path("tv_id") serieId: Int,
-        @Query("api_key") apiKey: String
-    ): SerieImageResult
-
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("append_to_response") appendToResponse: String = "credits",
+        @Query("language") language: String ="fr"
+    ): DetailsDuFilm
+
+    @GET("movie/{movie_id}/credits")
+    suspend fun getPersonMovie(
+        @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String
     ): Movie
+
+    @GET("tv/{tv_id}")
+    suspend fun getSerieDetails(
+        @Path("tv_id") serieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("append_to_response") appendToResponse: String = "credits",
+        @Query("language") language: String ="fr"
+    ): DetailsDeLaSerie
+
+
 
 }
 

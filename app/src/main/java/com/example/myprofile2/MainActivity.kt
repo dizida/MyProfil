@@ -10,7 +10,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.myprofile2.ui.theme.ActorsScreen
 import com.example.myprofile2.ui.theme.MyProfile2Theme
 
 
@@ -102,6 +101,15 @@ fun AppNavHost(viewModel: MainViewModel) {
                 FilmDetailScreen(movieId = movieId, viewModel = viewModel)
             } else {
                 Text("Erreur : ID du film manquant.")
+            }
+        }
+
+        composable("serieDetail/{serieId}") { backStackEntry ->
+            val serieId = backStackEntry.arguments?.getString("serieId")?.toIntOrNull()
+            if (serieId != null) {
+                SerieDetailScreen(serieId = serieId, viewModel = viewModel)
+            } else {
+                Text("Erreur : ID de la série manquant.")
             }
         }
 

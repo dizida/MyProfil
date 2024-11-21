@@ -1,6 +1,7 @@
 package com.example.myprofile2
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -131,7 +132,9 @@ fun SerieScreen(navController: NavController,
                     }
                 } else {
                     items(series) { serie ->
-                        SerieItem(serie)
+                        SerieItem(serie, onClick = { serieId ->
+                            navController.navigate("serieDetail/$serieId")
+                        })
                     }
                 }
             }
@@ -141,15 +144,15 @@ fun SerieScreen(navController: NavController,
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun SerieItem(serie: Serie) {
+fun SerieItem(serie: Serie, onClick: (Int) -> Unit) {
     val formattedDate = formatReleaseDate(serie.first_air_date)
     Column (
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
-            .shadow(4.dp, shape = RoundedCornerShape(8.dp))
             .padding(8.dp)
+            .clickable { onClick(serie.id) }
     ){
         AsyncImage(
             model = "https://image.tmdb.org/t/p/w500${serie.poster_path}",

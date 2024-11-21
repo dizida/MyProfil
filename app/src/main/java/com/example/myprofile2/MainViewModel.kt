@@ -35,8 +35,11 @@ class MainViewModel : ViewModel() {
     private val _acteurs = MutableStateFlow<List<Acteur>>(emptyList())
     val acteurs: StateFlow<List<Acteur>> = _acteurs.asStateFlow()
 
-    private val _movieDetails = MutableStateFlow<Movie?>(null)
-    val movieDetails: StateFlow<Movie?> = _movieDetails.asStateFlow()
+    private val _movieDetails = MutableStateFlow<DetailsDuFilm?>(null)
+    val movieDetails: StateFlow<DetailsDuFilm?> = _movieDetails.asStateFlow()
+
+    private val _serieDetails = MutableStateFlow<DetailsDeLaSerie?>(null)
+    val serieDetails: StateFlow<DetailsDeLaSerie?> = _serieDetails.asStateFlow()
 
     private val apiKey = "b6ca979d56d43e776f609f4858c2c1dd"
     init {
@@ -102,5 +105,18 @@ class MainViewModel : ViewModel() {
            }
        }
    }
+
+    fun getSerieById(serieId: Int){
+        viewModelScope.launch {
+            try {
+                val serie = service.getSerieDetails(serieId, apiKey)
+                _serieDetails.value = serie
+                Log.v("serieDetails", "Détails de la série récupérés : $serie")
+            } catch (e: Exception) {
+                Log.v("serieDetailsError", "Erreur lors de la récupération des détails de la série : ${e.message}")
+            }
+        }
+    }
+
 }
 
