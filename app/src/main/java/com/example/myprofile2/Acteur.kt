@@ -1,5 +1,6 @@
 package com.example.myprofile2
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,10 +34,17 @@ import androidx.navigation.NavController
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import androidx.compose.foundation.clickable
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,10 +54,13 @@ fun ActorsScreen(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    windowSizeClass: WindowSizeClass
 ) {
     val acteurs by viewModel.acteurs.collectAsState()
     val actorGridState = rememberLazyGridState()
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
 
 // Utilisez LaunchedEffect pour charger les données
     LaunchedEffect(actorGridState) {
@@ -61,14 +72,14 @@ fun ActorsScreen(
         topBar = {
             TopAppBar(
                 colors = topAppBarColors(
-                    containerColor = Color(0xFF6200EE),
+                    containerColor = Color(0xFFFF5722),
                     titleContentColor = Color.White,
                 ),
                 title = {
                     Text("Fav'App")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigateToProfilScreen() }) {
+                    IconButton(onClick = {navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description",
@@ -77,7 +88,7 @@ fun ActorsScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Action pour la recherche */ }) {
+                    IconButton(onClick = { isSearchVisible = true }) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Rechercher",
@@ -88,35 +99,43 @@ fun ActorsScreen(
             )
         },
         bottomBar = {
-            BottomAppBar(
-                containerColor = Color(0xFF6200EE),
-                contentColor = Color.White,
-            ) {
-                SerieBottomNavigationBar(
+            // Condition pour afficher la barre uniquement en mode portrait
+            if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
+                BottomBar(
                     navController = navController,
-                    onNavigateToFilm = {
-                        println("Nagigation to film screen")
-                        navController.navigate("film")
-                    },
-                    onNavigateToSeries = {
-                        println("Navigating to Series Screen")
-                        navController.navigate("series")
-                    },
-                    onNavigateToActors = {
-                        println("Navigating to Actors Screen")
-                        navController.navigate("actors")
-                    }
+                    onNavigateToFilm = {},
+                    onNavigateToSeries = onNavigateToSeries,
+                    onNavigateToActors = onNavigateToActors
                 )
             }
         }
     ) { innerPadding ->
+        CustomBackgroundColor()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        )
+        {
+            EnhancedSearchBar(
+            isSearchVisible = isSearchVisible,
+            onSearchVisibilityChanged = { isSearchVisible = it },
+            searchText = searchText,
+            onSearchTextChange = { newQuery ->
+                Log.v("newQuery","Search Text Changed:: $newQuery")
+                searchText = newQuery
+            },
+            onSearch = { query ->
+                Log.v("query","Search Query Submitted: $query")
+                if (query.isEmpty()) {
+                    viewModel.getTrendingPerson()
+                } else {
+                    viewModel.searchActors(query)
+                }
+            }
+        )
             LazyVerticalGrid(
                 state = actorGridState,
                 columns = GridCells.Fixed(2),

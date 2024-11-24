@@ -1,11 +1,14 @@
 package com.example.myprofile2
 
 
+import android.util.Log
+import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -41,13 +45,23 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.NavController
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
+
 
 import com.example.myprofile2.formatReleaseDate
 
@@ -58,12 +72,15 @@ fun FilmScreen(
     onNavigateToProfilScreen: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
-    viewModel: MainViewModel
+    onNavigateToFilm: () -> Unit,
+    viewModel: MainViewModel,
+    windowSizeClass: WindowSizeClass
 ) {
 
     val movies by viewModel.movies.collectAsState()
     val gridState = rememberLazyGridState()  // Utilise rememberLazyGridState pour la grille
-
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
     LaunchedEffect(gridState) {
         viewModel.getTrendingMovies()
     }
@@ -72,43 +89,40 @@ fun FilmScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                colors = topAppBarColors(
-                    containerColor = Color(0xFFFF5722),
-                    titleContentColor = Color.White,
-                ),
-                title = {
-                    Text("Fav'App")
-                },
+                title = { Text("Fav'App") },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigateToProfilScreen() }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
+                            contentDescription = "Retour",
                             tint = Color.White
                         )
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Action pour la recherche */ }) {
+                    IconButton(onClick = { isSearchVisible = true }) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Rechercher",
                             tint = Color.White
                         )
                     }
-                }
+                },
+
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFFF5722),
+                    titleContentColor = Color.White
+                )
             )
         },
         bottomBar = {
-            BottomAppBar(
-                containerColor = Color(0xFFFF5722),
-                contentColor = Color.White,
-            ) {
-                BottomNavigationBar(
+            // Condition pour afficher la barre uniquement en mode portrait
+            if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
+                BottomBar(
                     navController = navController,
-                    onNavigateToFilm = {},
-                    onNavigateToSeries = { navController.navigate("series") },
-                    onNavigateToActors = { navController.navigate("actors") }
+                    onNavigateToFilm = {navController.navigate("film")},
+                    onNavigateToSeries = {navController.navigate("series")},
+                    onNavigateToActors = {navController.navigate("actors")}
                 )
             }
         }
@@ -122,27 +136,34 @@ fun FilmScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LazyVerticalGrid(
-                state = gridState,
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                if (movies.isEmpty()) {
-                    item {
-                        Text(text = "Aucun film trouvé.")
-                    }
-                } else {
-                    items(movies) { movie ->
-                        MovieItem(movie, onClick = { movieId: Int ->
-                            navController.navigate("filmDetail/$movieId")
-                        })
-                    }
+            when (windowSizeClass.windowWidthSizeClass) {
+                WindowWidthSizeClass.COMPACT -> {
+                    CompactPortraitScreen(
+                        movies = movies,
+                        gridState = gridState,
+                        onMovieClick = { movieId: Int -> navController.navigate("filmDetail/$movieId") },
+                        viewModel = viewModel
+
+                        )
+                }
+
+                else -> {
+                    CompactLandscapeScreen(
+                        movies = movies,
+                        gridState = gridState,
+                        onMovieClick = { movieId: Int -> navController.navigate("filmDetail/$movieId") },
+                        viewModel = viewModel,
+                        onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
+                        onNavigateToSeries = onNavigateToSeries,
+                        onNavigateToActors = onNavigateToActors,
+                        navController = navController
+                    )
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun CustomBackgroundColor() {
@@ -187,75 +208,113 @@ fun MovieItem(movie: Movie, onClick: (Int) -> Unit) {
 
 
 @Composable
-fun BottomNavigationBar(
-    navController: NavController,
-    onNavigateToFilm: () -> Unit,
-    onNavigateToSeries: () -> Unit,
-    onNavigateToActors: () -> Unit
+fun CompactPortraitScreen(
+    movies: List<Movie>,
+    gridState: LazyGridState,
+    onMovieClick: (Int) -> Unit,
+    viewModel: MainViewModel
 ) {
-    val currentDestination = navController.currentBackStackEntryAsState().value?.destination
-    val isFilm = currentDestination?.route == "film"
-    val isSeries = currentDestination?.route == "series"
-    val isActors = currentDestination?.route == "actors"
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Bouton Film
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            IconButton(onClick = onNavigateToFilm) {
-                Icon(
-                    imageVector = Icons.Default.Movie,
-                    contentDescription = "Films",
-                    tint = if (isFilm) Color.Yellow else Color.White
-                )
+        EnhancedSearchBar(
+            isSearchVisible = isSearchVisible,
+            onSearchVisibilityChanged = { isSearchVisible = it },
+            searchText = searchText,
+            onSearchTextChange = { newQuery ->
+                searchText = newQuery
+            },
+            onSearch = { query ->
+                Log.v("queryFilm", "Search Query Submitted: $query")
+                if (query.isEmpty()) {
+                    viewModel.getTrendingMovies()
+                } else {
+                    viewModel.searchFilms(query)
+                }
             }
-            Text(
-                text = "Films",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isFilm) Color.Yellow else Color.White
-            )
-        }
+        )
 
-        // Bouton Série
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+        LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            IconButton(onClick = onNavigateToSeries) {
-                Icon(
-                    imageVector = Icons.Default.Tv,
-                    contentDescription = "Séries",
-                    tint = if (isSeries) Color.Yellow else Color.White
-                )
+            items(movies) { movie ->
+                MovieItem(movie = movie, onClick = onMovieClick)
             }
-            Text(
-                text = "Séries",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isSeries) Color.Yellow else Color.White
-            )
-        }
-
-        // Bouton Acteurs
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            IconButton(onClick = onNavigateToActors) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Acteurs",
-                    tint = if (isActors) Color.Yellow else Color.White
-                )
-            }
-            Text(
-                text = "Acteurs",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isActors) Color.Yellow else Color.White
-            )
         }
     }
 }
+
+@Composable
+fun CompactLandscapeScreen(
+    navController: NavController,
+    movies: List<Movie>,
+    gridState: LazyGridState,
+    onMovieClick: (Int) -> Unit,
+    onNavigateToFilm: () -> Unit,
+    onNavigateToSeries: () -> Unit,
+    onNavigateToActors: () -> Unit,
+    viewModel: MainViewModel
+) {
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.Start, // Permet à la Sidebar d'être positionnée à gauche
+        verticalAlignment = Alignment.Top // Alignement vertical du contenu
+    ) {
+        // Affichage de la Sidebar à gauche
+        Sidebar(
+            navController = navController,
+            onNavigateToFilm = onNavigateToFilm,
+            onNavigateToSeries = onNavigateToSeries,
+            onNavigateToActors = onNavigateToActors
+        )
+
+        // Section principale avec barre de recherche et grille
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f) // La grille occupe tout l'espace restant
+                .padding(16.dp)
+        ) {
+            EnhancedSearchBar(
+                isSearchVisible = isSearchVisible,
+                onSearchVisibilityChanged = { isSearchVisible = it },
+                searchText = searchText,
+                onSearchTextChange = { newQuery ->
+                    searchText = newQuery
+                },
+                onSearch = { query ->
+                    if (query.isEmpty()) {
+                        viewModel.getTrendingMovies()
+                    } else {
+                        viewModel.searchFilms(query)
+                    }
+                }
+            )
+
+            LazyVerticalGrid(
+                state = gridState,
+                columns = GridCells.Fixed(3), // Augmente le nombre de colonnes en mode paysage
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(movies) { movie ->
+                    MovieItem(movie = movie, onClick = onMovieClick)
+                }
+            }
+        }
+    }
+}
+
+
 

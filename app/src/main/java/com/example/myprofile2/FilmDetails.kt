@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,10 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 
 @Composable
-fun FilmDetailScreen(movieId: Int, viewModel: MainViewModel) {
+fun FilmDetailScreen(movieId: Int, viewModel: MainViewModel, navController: NavController) {
     val movie by viewModel.movieDetails.collectAsState()
 
     LaunchedEffect(movieId) {
@@ -48,7 +54,7 @@ fun FilmDetailScreen(movieId: Int, viewModel: MainViewModel) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-           // Backdrop
+            // Backdrop
             item(span = { GridItemSpan(2) })
             { MovieBackdrop(backdropPath = it.backdrop_path, title = it.title) }
 
@@ -68,10 +74,24 @@ fun FilmDetailScreen(movieId: Int, viewModel: MainViewModel) {
                 SectionTitle(title = "Tête d'affiche")
             }
 
-            items(it.credits.cast) {actor->
+            items(it.credits.cast) { actor ->
                 CastFilmCard(actor)
             }
         }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            FloatingActionButton(
+                onClick = { navController.popBackStack() }
+            ) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
+            }
+        }
+
     } ?: run {
         Text("Chargement des détails du film...")
     }
