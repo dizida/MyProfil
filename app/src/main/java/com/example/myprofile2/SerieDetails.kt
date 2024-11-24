@@ -7,6 +7,10 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,10 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 
 @Composable
-fun SerieDetailScreen(serieId: Int, viewModel: MainViewModel) {
+fun SerieDetailScreen(serieId: Int, viewModel: MainViewModel, navController: NavController) {
     val serie by viewModel.serieDetails.collectAsState()
 
     LaunchedEffect(serieId) {
@@ -62,6 +67,20 @@ fun SerieDetailScreen(serieId: Int, viewModel: MainViewModel) {
                 CastSerieCard(actor)
             }
         }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            FloatingActionButton(
+                onClick = { navController.popBackStack() }
+            ) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
+            }
+        }
+
     } ?: run {
         Text("Chargement des détails de la série...")
     }
@@ -104,7 +123,10 @@ fun SerieInfoSection(serie: DetailsDeLaSerie) {
                 .align(Alignment.CenterVertically)
         ) {
             Text(text = serie.name, style = MaterialTheme.typography.headlineMedium)
-            Text(text = "Date de première diffusion: ${serie.first_air_date}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Date de première diffusion: ${serie.first_air_date}",
+                style = MaterialTheme.typography.bodyMedium
+            )
             Text(
                 text = "Genre: ${serie.genres.joinToString { it.name }}",
                 style = MaterialTheme.typography.bodyMedium

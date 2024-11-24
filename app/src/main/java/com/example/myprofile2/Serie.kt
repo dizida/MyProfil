@@ -1,15 +1,19 @@
 package com.example.myprofile2
 
+
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -33,6 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,9 +50,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
 import com.example.myprofile2.formatReleaseDate
+import kotlin.math.log
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,11 +65,15 @@ fun SerieScreen(navController: NavController,
                 onNavigateToFilm: () -> Unit,
                 onNavigateToSeries: () -> Unit,
                 onNavigateToActors: () -> Unit,
-                viewModel: MainViewModel) {
+                viewModel: MainViewModel,
+                windowSizeClass: WindowSizeClass
+) {
 
 
     val series by viewModel.series.collectAsState()
     val serieGridState = rememberLazyGridState()  // Utilise rememberLazyGridState pour la grille
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
 
     LaunchedEffect(serieGridState) {
         viewModel.getPopularSeries()
@@ -70,14 +84,14 @@ fun SerieScreen(navController: NavController,
         topBar = {
             TopAppBar(
                 colors = topAppBarColors(
-                    containerColor = Color(0xFF6200EE),
+                    containerColor = Color(0xFFFF5722),
                     titleContentColor = Color.White,
                 ),
                 title = {
                     Text("Fav'App")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigateToProfilScreen() }) {
+                    IconButton(onClick = {navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description",
@@ -86,7 +100,7 @@ fun SerieScreen(navController: NavController,
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Action pour la recherche */ }) {
+                    IconButton(onClick = { isSearchVisible = true }) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Rechercher",
@@ -97,18 +111,13 @@ fun SerieScreen(navController: NavController,
             )
         },
         bottomBar = {
-            BottomAppBar(
-                containerColor = Color(0xFF6200EE),
-                contentColor = Color.White,
-            ) {
-                SerieBottomNavigationBar(
+            // Condition pour afficher la barre uniquement en mode portrait
+            if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
+                BottomBar(
                     navController = navController,
-                    onNavigateToFilm = {println("Nagigation to film screen")
-                        navController.navigate("film")},
-                    onNavigateToSeries = {println("Navigating to Series Screen")
-                        navController.navigate("series")},
-                    onNavigateToActors = {println("Navigating to Actors Screen")
-                        navController.navigate("actors")}
+                    onNavigateToFilm = {},
+                    onNavigateToSeries = onNavigateToSeries,
+                    onNavigateToActors = onNavigateToActors
                 )
             }
         }
@@ -121,21 +130,28 @@ fun SerieScreen(navController: NavController,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LazyVerticalGrid(
-                state = serieGridState,
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                if (series.isEmpty()) {
-                    item {
-                        Text(text = "Aucunes séries trouvées.")
-                    }
-                } else {
-                    items(series) { serie ->
-                        SerieItem(serie, onClick = { serieId ->
-                            navController.navigate("serieDetail/$serieId")
-                        })
-                    }
+            when (windowSizeClass.windowWidthSizeClass) {
+                WindowWidthSizeClass.COMPACT -> {
+                    CompactPortraitScreenSeries(
+                        series = series,
+                        gridState = serieGridState,
+                        onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
+
+                else -> {
+                    CompactLandscapeScreenSeries(
+                        series = series,
+                        gridState = serieGridState,
+                        onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
+                        viewModel = viewModel,
+                        onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
+                        onNavigateToSeries = onNavigateToSeries,
+                        onNavigateToActors = onNavigateToActors,
+                        navController = navController
+                    )
                 }
             }
         }
@@ -239,6 +255,117 @@ fun SerieBottomNavigationBar(
                 style = MaterialTheme.typography.bodySmall,
                 color = if (isActors) Color.Yellow else Color.White
             )
+        }
+    }
+}
+
+@Composable
+fun CompactPortraitScreenSeries(
+    series: List<Serie>,
+    gridState: LazyGridState,
+    onSerieClick: (Int) -> Unit,
+    viewModel: MainViewModel,
+    navController: NavController,
+
+    ) {
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        EnhancedSearchBar(
+            isSearchVisible = isSearchVisible,
+            onSearchVisibilityChanged = { isSearchVisible = it },
+            searchText = searchText,
+            onSearchTextChange = { newQuery ->
+                searchText = newQuery
+            },
+            onSearch = { query ->
+                Log.v("querySerie", "Search Query Submitted: $query")
+                if (query.isEmpty()) {
+                    viewModel.getPopularSeries()
+                } else {
+                    viewModel.searchSeries(query)
+                }
+            }
+        )
+
+        LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(series) { serie ->
+                SerieItem(serie = serie, onClick = onSerieClick)
+            }
+        }
+    }
+}
+
+@Composable
+fun CompactLandscapeScreenSeries(
+    navController: NavController,
+    series: List<Serie>,
+    gridState: LazyGridState,
+    onSerieClick: (Int) -> Unit,
+    onNavigateToFilm: () -> Unit,
+    onNavigateToSeries: () -> Unit,
+    onNavigateToActors: () -> Unit,
+    viewModel: MainViewModel
+) {
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.Start, // Permet à la Sidebar d'être positionnée à gauche
+        verticalAlignment = Alignment.Top // Alignement vertical du contenu
+    ) {
+        // Affichage de la Sidebar à gauche
+        Sidebar(
+            onNavigateToFilm = onNavigateToFilm,
+            onNavigateToSeries = onNavigateToSeries,
+            onNavigateToActors = onNavigateToActors,
+            navController = navController
+        )
+
+        // Section principale avec barre de recherche et grille
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f) // La grille occupe tout l'espace restant
+                .padding(16.dp)
+        ) {
+            EnhancedSearchBar(
+                isSearchVisible = isSearchVisible,
+                onSearchVisibilityChanged = { isSearchVisible = it },
+                searchText = searchText,
+                onSearchTextChange = { newQuery ->
+                    searchText = newQuery
+                },
+                onSearch = { query ->
+                    if (query.isEmpty()) {
+                        viewModel.getPopularSeries()
+                    } else {
+                        viewModel.searchSeries(query)
+                    }
+                }
+            )
+
+            LazyVerticalGrid(
+                state = gridState,
+                columns = GridCells.Fixed(3), // Augmente le nombre de colonnes en mode paysage
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(series) { serie ->
+                    SerieItem(serie = serie, onClick = onSerieClick)
+                }
+            }
         }
     }
 }

@@ -5,11 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowSizeClass
 import com.example.myprofile2.ui.theme.MyProfile2Theme
 
 
@@ -29,7 +31,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavHost(viewModel: MainViewModel) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "profil") {
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    NavHost(navController = navController, startDestination = "film") {
 
         composable("profil") {
             ProfilScreen(
@@ -51,7 +54,13 @@ fun AppNavHost(viewModel: MainViewModel) {
                 onNavigateToActors = {
                     navController.navigate("actors")
                 },
-                viewModel = viewModel
+                onNavigateToFilm = {
+                    navController.navigate("film")
+                },
+
+                viewModel = viewModel,
+
+                windowSizeClass = windowSizeClass
             )
         }
 
@@ -71,7 +80,8 @@ fun AppNavHost(viewModel: MainViewModel) {
                     navController.navigate("actors")
                 },
 
-                viewModel = viewModel
+                viewModel = viewModel,
+                windowSizeClass = windowSizeClass
             )
         }
 
@@ -91,14 +101,15 @@ fun AppNavHost(viewModel: MainViewModel) {
                     navController.navigate("actors")
                 },
 
-                viewModel = viewModel
+                viewModel = viewModel,
+                windowSizeClass = windowSizeClass
             )
         }
 
         composable("filmDetail/{movieId}") { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull()
             if (movieId != null) {
-                FilmDetailScreen(movieId = movieId, viewModel = viewModel)
+                FilmDetailScreen(movieId = movieId, viewModel = viewModel, navController = navController)
             } else {
                 Text("Erreur : ID du film manquant.")
             }
@@ -107,7 +118,7 @@ fun AppNavHost(viewModel: MainViewModel) {
         composable("serieDetail/{serieId}") { backStackEntry ->
             val serieId = backStackEntry.arguments?.getString("serieId")?.toIntOrNull()
             if (serieId != null) {
-                SerieDetailScreen(serieId = serieId, viewModel = viewModel)
+                SerieDetailScreen(serieId = serieId, viewModel = viewModel, navController = navController)
             } else {
                 Text("Erreur : ID de la série manquant.")
             }
@@ -129,13 +140,16 @@ fun ProfilScreenPreview() {
 @Composable
 fun FilmScreenPreview() {
     val navController = rememberNavController()
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     MyProfile2Theme {
         FilmScreen(
             navController = navController,
             onNavigateToProfilScreen = {},
             onNavigateToSeries = {},
             onNavigateToActors = {},
-            viewModel = MainViewModel()
+            viewModel = MainViewModel(),
+            windowSizeClass = windowSizeClass,
+            onNavigateToFilm = {}
         )
     }
 }
@@ -144,6 +158,7 @@ fun FilmScreenPreview() {
 @Composable
 fun SerieScreenPreview() {
     val navController = rememberNavController()
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     MyProfile2Theme {
         SerieScreen(
             navController = navController,
@@ -151,7 +166,8 @@ fun SerieScreenPreview() {
             onNavigateToSeries = {},
             onNavigateToFilm = {},
             onNavigateToActors = {},
-            viewModel = MainViewModel()
+            viewModel = MainViewModel(),
+            windowSizeClass = windowSizeClass
         )
     }
 }
