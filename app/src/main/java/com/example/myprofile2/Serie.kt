@@ -130,6 +130,21 @@ fun SerieScreen(navController: NavController,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            EnhancedSearchBar(
+                isSearchVisible = isSearchVisible,
+                onSearchVisibilityChanged = { isSearchVisible = it },
+                searchText = searchText,
+                onSearchTextChange = { newQuery ->
+                    searchText = newQuery
+                },
+                onSearch = { query ->
+                    if (query.isEmpty()) {
+                        viewModel.getPopularSeries()
+                    } else {
+                        viewModel.searchSeries(query)
+                    }
+                }
+            )
             when (windowSizeClass.windowWidthSizeClass) {
                 WindowWidthSizeClass.COMPACT -> {
                     CompactPortraitScreenSeries(

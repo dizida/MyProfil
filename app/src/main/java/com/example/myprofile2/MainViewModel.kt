@@ -118,5 +118,31 @@ class MainViewModel : ViewModel() {
         }
     }
 
+fun searchFilms(query: String) {
+    viewModelScope.launch {
+        try {
+            _movies.value = service.getFilmsParMotCle(apiKey, query).results
+        } catch (e: Exception) {
+            Log.v("MainViewModel", "Erreur lors de la recherche des films, ${e.message}")
+        }
+    }
+}fun searchSeries(query: String) {
+    viewModelScope.launch {
+        try {
+            _series.value = service.getSeriesParMotCle(apiKey, query).results
+        } catch (e: Exception) {
+            Log.v("MainViewModel", "Erreur lors de la recherche des séries, ${e.message}")
+        }
+    }
+}fun searchActors(query: String) {
+    viewModelScope.launch {
+        try {
+            _acteurs.value = service.getActorsParMotCle(apiKey,query).results
+        } catch (e: Exception) {
+            Log.v("MainViewModel", "Erreur lors de la recherche des acteurs, ${e.message}")
+        }
+    }
+}
+
 }
 

@@ -42,6 +42,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 
@@ -178,5 +181,116 @@ fun ActorItem(actors: Acteur) {
         )
         Text(text = actors.original_name)
 
+    }
+}
+
+@Composable
+fun CompactPortraitScreenActors(
+    series: List<Serie>,
+    gridState: LazyGridState,
+    onSerieClick: (Int) -> Unit,
+    viewModel: MainViewModel,
+    navController: NavController,
+
+    ) {
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        EnhancedSearchBar(
+            isSearchVisible = isSearchVisible,
+            onSearchVisibilityChanged = { isSearchVisible = it },
+            searchText = searchText,
+            onSearchTextChange = { newQuery ->
+                searchText = newQuery
+            },
+            onSearch = { query ->
+                Log.v("querySerie", "Search Query Submitted: $query")
+                if (query.isEmpty()) {
+                    viewModel.getPopularSeries()
+                } else {
+                    viewModel.searchSeries(query)
+                }
+            }
+        )
+
+        LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(series) { serie ->
+                SerieItem(serie = serie, onClick = onSerieClick)
+            }
+        }
+    }
+}
+
+@Composable
+fun CompactLandscapeScreenActors(
+    navController: NavController,
+    series: List<Serie>,
+    gridState: LazyGridState,
+    onSerieClick: (Int) -> Unit,
+    onNavigateToFilm: () -> Unit,
+    onNavigateToSeries: () -> Unit,
+    onNavigateToActors: () -> Unit,
+    viewModel: MainViewModel
+) {
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.Start, // Permet à la Sidebar d'être positionnée à gauche
+        verticalAlignment = Alignment.Top // Alignement vertical du contenu
+    ) {
+        // Affichage de la Sidebar à gauche
+        Sidebar(
+            onNavigateToFilm = onNavigateToFilm,
+            onNavigateToSeries = onNavigateToSeries,
+            onNavigateToActors = onNavigateToActors,
+            navController = navController
+        )
+
+        // Section principale avec barre de recherche et grille
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f) // La grille occupe tout l'espace restant
+                .padding(16.dp)
+        ) {
+            EnhancedSearchBar(
+                isSearchVisible = isSearchVisible,
+                onSearchVisibilityChanged = { isSearchVisible = it },
+                searchText = searchText,
+                onSearchTextChange = { newQuery ->
+                    searchText = newQuery
+                },
+                onSearch = { query ->
+                    if (query.isEmpty()) {
+                        viewModel.getPopularSeries()
+                    } else {
+                        viewModel.searchSeries(query)
+                    }
+                }
+            )
+
+            LazyVerticalGrid(
+                state = gridState,
+                columns = GridCells.Fixed(3), // Augmente le nombre de colonnes en mode paysage
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(series) { serie ->
+                    SerieItem(serie = serie, onClick = onSerieClick)
+                }
+            }
+        }
     }
 }
