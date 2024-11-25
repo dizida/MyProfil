@@ -122,7 +122,8 @@ fun FilmScreen(
                     navController = navController,
                     onNavigateToFilm = {navController.navigate("film")},
                     onNavigateToSeries = {navController.navigate("series")},
-                    onNavigateToActors = {navController.navigate("actors")}
+                    onNavigateToActors = {navController.navigate("actors")},
+                    onNavigateToProfil = onNavigateToProfilScreen
                 )
             }
         }
@@ -136,30 +137,46 @@ fun FilmScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when (windowSizeClass.windowWidthSizeClass) {
-                WindowWidthSizeClass.COMPACT -> {
-                    CompactPortraitScreen(
-                        movies = movies,
-                        gridState = gridState,
-                        onMovieClick = { movieId: Int -> navController.navigate("filmDetail/$movieId") },
-                        viewModel = viewModel
+            EnhancedSearchBar(
+                isSearchVisible = isSearchVisible,
+                onSearchVisibilityChanged = { isSearchVisible = it },
+                searchText = searchText,
+                onSearchTextChange = { newQuery ->
+                    searchText = newQuery
+                },
+                onSearch = { query ->
+                    if (query.isEmpty()) {
+                        viewModel.getPopularSeries()
+                    } else {
+                        viewModel.searchSeries(query)
+                    }
+                },
+            )
+                when (windowSizeClass.windowWidthSizeClass) {
+                    WindowWidthSizeClass.COMPACT -> {
+                        CompactPortraitScreen(
+                            movies = movies,
+                            gridState = gridState,
+                            onMovieClick = { movieId: Int -> navController.navigate("filmDetail/$movieId") },
+                            viewModel = viewModel
 
                         )
+                    }
+
+                    else -> {
+                        CompactLandscapeScreen(
+                            movies = movies,
+                            gridState = gridState,
+                            onMovieClick = { movieId: Int -> navController.navigate("filmDetail/$movieId") },
+                            viewModel = viewModel,
+                            onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
+                            onNavigateToSeries = onNavigateToSeries,
+                            onNavigateToActors = onNavigateToActors,
+                            navController = navController
+                        )
+                    }
                 }
 
-                else -> {
-                    CompactLandscapeScreen(
-                        movies = movies,
-                        gridState = gridState,
-                        onMovieClick = { movieId: Int -> navController.navigate("filmDetail/$movieId") },
-                        viewModel = viewModel,
-                        onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
-                        onNavigateToSeries = onNavigateToSeries,
-                        onNavigateToActors = onNavigateToActors,
-                        navController = navController
-                    )
-                }
-            }
         }
     }
 }
@@ -214,30 +231,12 @@ fun CompactPortraitScreen(
     onMovieClick: (Int) -> Unit,
     viewModel: MainViewModel
 ) {
-    var isSearchVisible by remember { mutableStateOf(false) }
-    var searchText by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        EnhancedSearchBar(
-            isSearchVisible = isSearchVisible,
-            onSearchVisibilityChanged = { isSearchVisible = it },
-            searchText = searchText,
-            onSearchTextChange = { newQuery ->
-                searchText = newQuery
-            },
-            onSearch = { query ->
-                Log.v("queryFilm", "Search Query Submitted: $query")
-                if (query.isEmpty()) {
-                    viewModel.getTrendingMovies()
-                } else {
-                    viewModel.searchFilms(query)
-                }
-            }
-        )
 
         LazyVerticalGrid(
             state = gridState,
@@ -263,8 +262,6 @@ fun CompactLandscapeScreen(
     onNavigateToActors: () -> Unit,
     viewModel: MainViewModel
 ) {
-    var isSearchVisible by remember { mutableStateOf(false) }
-    var searchText by remember { mutableStateOf("") }
 
     Row(
         modifier = Modifier.fillMaxSize(),
@@ -276,7 +273,8 @@ fun CompactLandscapeScreen(
             navController = navController,
             onNavigateToFilm = onNavigateToFilm,
             onNavigateToSeries = onNavigateToSeries,
-            onNavigateToActors = onNavigateToActors
+            onNavigateToActors = onNavigateToActors,
+            onNavigateToProfil = { navController.navigate("profil") }
         )
 
         // Section principale avec barre de recherche et grille
@@ -286,21 +284,6 @@ fun CompactLandscapeScreen(
                 .weight(1f) // La grille occupe tout l'espace restant
                 .padding(16.dp)
         ) {
-            EnhancedSearchBar(
-                isSearchVisible = isSearchVisible,
-                onSearchVisibilityChanged = { isSearchVisible = it },
-                searchText = searchText,
-                onSearchTextChange = { newQuery ->
-                    searchText = newQuery
-                },
-                onSearch = { query ->
-                    if (query.isEmpty()) {
-                        viewModel.getTrendingMovies()
-                    } else {
-                        viewModel.searchFilms(query)
-                    }
-                }
-            )
 
             LazyVerticalGrid(
                 state = gridState,

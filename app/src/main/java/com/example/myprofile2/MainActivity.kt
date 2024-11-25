@@ -1,6 +1,7 @@
 package com.example.myprofile2
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
 fun AppNavHost(viewModel: MainViewModel) {
     val navController = rememberNavController()
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-    NavHost(navController = navController, startDestination = "film") {
+    NavHost(navController = navController, startDestination = "profil") {
 
         composable("profil") {
             ProfilScreen(
@@ -49,12 +50,14 @@ fun AppNavHost(viewModel: MainViewModel) {
                     navController.navigate("profil")
                 },
                 onNavigateToSeries = {
+                    Log.d("navigationSeries","Navigating to series")
                     navController.navigate("series")
                 },
                 onNavigateToActors = {
                     navController.navigate("actors")
                 },
                 onNavigateToFilm = {
+                    Log.v("navigationFilm","Navigating to film")
                     navController.navigate("film")
                 },
 
@@ -68,9 +71,11 @@ fun AppNavHost(viewModel: MainViewModel) {
             SerieScreen(
                 navController = navController,
                 onNavigateToFilm = {
+                    Log.v("navigationFilm","Navigating to film")
                     navController.navigate("film")
                 },
                 onNavigateToProfilScreen = {
+                    Log.v("navigationProfil","Navigating to profil")
                     navController.navigate("profil")
                 },
                 onNavigateToSeries = {
@@ -89,7 +94,9 @@ fun AppNavHost(viewModel: MainViewModel) {
             ActorsScreen(
                 navController = navController,
                 onNavigateToFilm = {
+                    Log.v("navigationFilm","Navigating to film")
                     navController.navigate("film")
+                    Log.v("navigationFilm","After navigating to film")
                 },
                 onNavigateToProfilScreen = {
                     navController.navigate("profil")

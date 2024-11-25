@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -43,12 +44,14 @@ fun BottomBar(
     navController: NavController,
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
-    onNavigateToActors: () -> Unit
+    onNavigateToActors: () -> Unit,
+    onNavigateToProfil: () -> Unit
 ) {
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination
     val isFilm = currentDestination?.route == "film"
     val isSeries = currentDestination?.route == "series"
     val isActors = currentDestination?.route == "actors"
+    val isProfil = currentDestination?.route == "profil"
 
     Row(
         modifier = Modifier
@@ -59,10 +62,20 @@ fun BottomBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         BottomBarItem(
+            label = "Profil",
+            icon = Icons.Default.AccountCircle,
+            isSelected = isProfil,
+            onClick = onNavigateToProfil
+        )
+        BottomBarItem(
             label = "Films",
             icon = Icons.Default.Movie,
             isSelected = isFilm,
-            onClick = onNavigateToFilm
+            onClick = {
+                Log.d("BottomBar", "Navigating to film")
+                //ne fonctionne que comme ça
+                navController.navigate("film")
+            }
         )
         BottomBarItem(
             label = "Séries",
@@ -76,6 +89,7 @@ fun BottomBar(
             isSelected = isActors,
             onClick = onNavigateToActors
         )
+
     }
 }
 

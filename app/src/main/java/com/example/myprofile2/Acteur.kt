@@ -108,7 +108,8 @@ fun ActorsScreen(
                     navController = navController,
                     onNavigateToFilm = {},
                     onNavigateToSeries = onNavigateToSeries,
-                    onNavigateToActors = onNavigateToActors
+                    onNavigateToActors = onNavigateToActors,
+                    onNavigateToProfil= onNavigateToProfilScreen
                 )
             }
         }
@@ -138,7 +139,32 @@ fun ActorsScreen(
                     viewModel.searchActors(query)
                 }
             }
+
         )
+            when (windowSizeClass.windowWidthSizeClass) {
+                WindowWidthSizeClass.COMPACT -> {
+                    CompactPortraitScreenActors(
+                        acteurs = acteurs,
+                        gridState = actorGridState,
+                        onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
+
+                else -> {
+                    CompactLandscapeScreenActors(
+                        acteurs = acteurs,
+                        gridState = actorGridState,
+                        onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
+                        viewModel = viewModel,
+                        onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
+                        onNavigateToSeries = onNavigateToSeries,
+                        onNavigateToActors = onNavigateToActors,
+                        navController = navController
+                    )
+                }
+            }
             LazyVerticalGrid(
                 state = actorGridState,
                 columns = GridCells.Fixed(2),
@@ -186,7 +212,7 @@ fun ActorItem(actors: Acteur) {
 
 @Composable
 fun CompactPortraitScreenActors(
-    series: List<Serie>,
+    acteurs: List<Acteur>,
     gridState: LazyGridState,
     onSerieClick: (Int) -> Unit,
     viewModel: MainViewModel,
@@ -211,9 +237,9 @@ fun CompactPortraitScreenActors(
             onSearch = { query ->
                 Log.v("querySerie", "Search Query Submitted: $query")
                 if (query.isEmpty()) {
-                    viewModel.getPopularSeries()
+                    viewModel.getTrendingPerson()
                 } else {
-                    viewModel.searchSeries(query)
+                    viewModel.searchActors(query)
                 }
             }
         )
@@ -224,8 +250,8 @@ fun CompactPortraitScreenActors(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(series) { serie ->
-                SerieItem(serie = serie, onClick = onSerieClick)
+            items(acteurs) { actor ->
+                ActorItem(actor)
             }
         }
     }
@@ -234,7 +260,7 @@ fun CompactPortraitScreenActors(
 @Composable
 fun CompactLandscapeScreenActors(
     navController: NavController,
-    series: List<Serie>,
+    acteurs:List<Acteur>,
     gridState: LazyGridState,
     onSerieClick: (Int) -> Unit,
     onNavigateToFilm: () -> Unit,
@@ -255,6 +281,7 @@ fun CompactLandscapeScreenActors(
             onNavigateToFilm = onNavigateToFilm,
             onNavigateToSeries = onNavigateToSeries,
             onNavigateToActors = onNavigateToActors,
+            onNavigateToProfil = { navController.navigate("profil") },
             navController = navController
         )
 
@@ -265,21 +292,6 @@ fun CompactLandscapeScreenActors(
                 .weight(1f) // La grille occupe tout l'espace restant
                 .padding(16.dp)
         ) {
-            EnhancedSearchBar(
-                isSearchVisible = isSearchVisible,
-                onSearchVisibilityChanged = { isSearchVisible = it },
-                searchText = searchText,
-                onSearchTextChange = { newQuery ->
-                    searchText = newQuery
-                },
-                onSearch = { query ->
-                    if (query.isEmpty()) {
-                        viewModel.getPopularSeries()
-                    } else {
-                        viewModel.searchSeries(query)
-                    }
-                }
-            )
 
             LazyVerticalGrid(
                 state = gridState,
@@ -287,8 +299,8 @@ fun CompactLandscapeScreenActors(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(series) { serie ->
-                    SerieItem(serie = serie, onClick = onSerieClick)
+                items(acteurs) { actor ->
+                    ActorItem(actor)
                 }
             }
         }
