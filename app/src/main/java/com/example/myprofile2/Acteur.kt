@@ -82,7 +82,7 @@ fun ActorsScreen(
                     Text("Fav'App")
                 },
                 navigationIcon = {
-                    IconButton(onClick = {navController.popBackStack() }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description",
@@ -109,7 +109,7 @@ fun ActorsScreen(
                     onNavigateToFilm = {},
                     onNavigateToSeries = onNavigateToSeries,
                     onNavigateToActors = onNavigateToActors,
-                    onNavigateToProfil= onNavigateToProfilScreen
+                    onNavigateToProfil = onNavigateToProfilScreen
                 )
             }
         }
@@ -124,31 +124,29 @@ fun ActorsScreen(
         )
         {
             EnhancedSearchBar(
-            isSearchVisible = isSearchVisible,
-            onSearchVisibilityChanged = { isSearchVisible = it },
-            searchText = searchText,
-            onSearchTextChange = { newQuery ->
-                Log.v("newQuery","Search Text Changed:: $newQuery")
-                searchText = newQuery
-            },
-            onSearch = { query ->
-                Log.v("query","Search Query Submitted: $query")
-                if (query.isEmpty()) {
-                    viewModel.getTrendingPerson()
-                } else {
-                    viewModel.searchActors(query)
+                isSearchVisible = isSearchVisible,
+                onSearchVisibilityChanged = { isSearchVisible = it },
+                searchText = searchText,
+                onSearchTextChange = { newQuery ->
+                    Log.v("newQuery", "Search Text Changed:: $newQuery")
+                    searchText = newQuery
+                },
+                onSearch = { query ->
+                    Log.v("query", "Search Query Submitted: $query")
+                    if (query.isEmpty()) {
+                        viewModel.getTrendingPerson()
+                    } else {
+                        viewModel.searchActors(query)
+                    }
                 }
-            }
 
-        )
+            )
             when (windowSizeClass.windowWidthSizeClass) {
                 WindowWidthSizeClass.COMPACT -> {
                     CompactPortraitScreenActors(
                         acteurs = acteurs,
                         gridState = actorGridState,
-                        onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
                         viewModel = viewModel,
-                        navController = navController
                     )
                 }
 
@@ -156,45 +154,29 @@ fun ActorsScreen(
                     CompactLandscapeScreenActors(
                         acteurs = acteurs,
                         gridState = actorGridState,
-                        onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
-                        viewModel = viewModel,
-                        onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
+                        onNavigateToFilm = onNavigateToFilm,
                         onNavigateToSeries = onNavigateToSeries,
                         onNavigateToActors = onNavigateToActors,
                         navController = navController
                     )
                 }
             }
-            LazyVerticalGrid(
-                state = actorGridState,
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                if (acteurs.isEmpty()) {
-                    item {
-                        Text(text = "Aucuns acteurs trouvés.")
-                    }
-                } else {
-                    items(acteurs) { actor ->
-                        ActorItem(actor)
-                    }
-                }
-            }
 
         }
-    }
 
+    }
 }
+
 
 @Composable
 fun ActorItem(actors: Acteur) {
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
             .padding(8.dp)
-    ){
+    ) {
         AsyncImage(
             model = "https://image.tmdb.org/t/p/w500${actors.profile_path}",
             contentDescription = actors.original_name,
@@ -214,9 +196,7 @@ fun ActorItem(actors: Acteur) {
 fun CompactPortraitScreenActors(
     acteurs: List<Acteur>,
     gridState: LazyGridState,
-    onSerieClick: (Int) -> Unit,
     viewModel: MainViewModel,
-    navController: NavController,
 
     ) {
     var isSearchVisible by remember { mutableStateOf(false) }
@@ -260,16 +240,12 @@ fun CompactPortraitScreenActors(
 @Composable
 fun CompactLandscapeScreenActors(
     navController: NavController,
-    acteurs:List<Acteur>,
+    acteurs: List<Acteur>,
     gridState: LazyGridState,
-    onSerieClick: (Int) -> Unit,
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
-    viewModel: MainViewModel
 ) {
-    var isSearchVisible by remember { mutableStateOf(false) }
-    var searchText by remember { mutableStateOf("") }
 
     Row(
         modifier = Modifier.fillMaxSize(),

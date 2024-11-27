@@ -74,7 +74,6 @@ class MainViewModel : ViewModel() {
         try {
             val seriesResult = service.discoverSeries(apiKey)
             _series.value = seriesResult.results
-            ///println("Séries récupérées : ${_series.value}")
             Log.v("zzzzz", "Réponse brute de l'API : $seriesResult")
         } catch (e: Exception) {
             Log.v("zzzzz", "Erreur lors de la récupération des séries : ${e.message}")

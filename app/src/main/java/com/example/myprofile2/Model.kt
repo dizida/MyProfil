@@ -57,11 +57,7 @@ data class Serie(
     val vote_count: Int
 )
 
-// Classe de données représentant le résultat de l'API pour les images d'une série
-data class SerieImageResult(
-    val backdrops: List<Image>,
-    val posters: List<Image>
-)
+
 data class TmdbResultActors(
     val page: Int = 0,
     val results: List<Acteur> = listOf(),

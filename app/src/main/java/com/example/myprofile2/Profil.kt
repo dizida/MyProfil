@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key.Companion.R
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -130,9 +131,10 @@ fun MediumLayout(onNavigateToFilmScreen: () -> Unit) {
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     CostumImage(
-        imageResId = R.drawable.img,
+        imageResId = R.drawable.photo,
         contentDescription = "icon",
         modifier = Modifier.padding(bottom = 16.dp)
+            .size(200.dp)
     )
 }
 
@@ -219,7 +221,7 @@ fun StartButton(onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier
             .padding(16.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB6C1))
     ) {
         Text("Démarrer", style = MaterialTheme.typography.titleMedium)
     }

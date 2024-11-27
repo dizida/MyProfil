@@ -146,9 +146,9 @@ fun FilmScreen(
                 },
                 onSearch = { query ->
                     if (query.isEmpty()) {
-                        viewModel.getPopularSeries()
+                        viewModel.getTrendingMovies()
                     } else {
-                        viewModel.searchSeries(query)
+                        viewModel.searchFilms(query)
                     }
                 },
             )
@@ -158,7 +158,6 @@ fun FilmScreen(
                             movies = movies,
                             gridState = gridState,
                             onMovieClick = { movieId: Int -> navController.navigate("filmDetail/$movieId") },
-                            viewModel = viewModel
 
                         )
                     }
@@ -168,8 +167,7 @@ fun FilmScreen(
                             movies = movies,
                             gridState = gridState,
                             onMovieClick = { movieId: Int -> navController.navigate("filmDetail/$movieId") },
-                            viewModel = viewModel,
-                            onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
+                            onNavigateToFilm = onNavigateToFilm,
                             onNavigateToSeries = onNavigateToSeries,
                             onNavigateToActors = onNavigateToActors,
                             navController = navController
@@ -190,7 +188,7 @@ fun CustomBackgroundColor() {
             .background(Color(0xFFFF5722).copy(alpha = 0.5f)) // couleur personnalisée avec une opacité de 50%
             .padding(16.dp)
     ) {
-        // Votre contenu
+
         Text("Contenu avec un arrière-plan personnalisé")
     }
 }
@@ -229,7 +227,6 @@ fun CompactPortraitScreen(
     movies: List<Movie>,
     gridState: LazyGridState,
     onMovieClick: (Int) -> Unit,
-    viewModel: MainViewModel
 ) {
 
     Column(
@@ -260,7 +257,6 @@ fun CompactLandscapeScreen(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
-    viewModel: MainViewModel
 ) {
 
     Row(
