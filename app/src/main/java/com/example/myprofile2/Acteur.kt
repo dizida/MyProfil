@@ -57,6 +57,7 @@ fun ActorsScreen(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
+    onNavigateToHorror: () -> Unit,
     viewModel: MainViewModel,
     windowSizeClass: WindowSizeClass
 ) {
@@ -109,7 +110,8 @@ fun ActorsScreen(
                     onNavigateToFilm = {},
                     onNavigateToSeries = onNavigateToSeries,
                     onNavigateToActors = onNavigateToActors,
-                    onNavigateToProfil= onNavigateToProfilScreen
+                    onNavigateToProfil= onNavigateToProfilScreen,
+                    onNavigateToHorror = onNavigateToHorror
                 )
             }
         }
@@ -146,9 +148,7 @@ fun ActorsScreen(
                     CompactPortraitScreenActors(
                         acteurs = acteurs,
                         gridState = actorGridState,
-                        onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
                         viewModel = viewModel,
-                        navController = navController
                     )
                 }
 
@@ -156,8 +156,6 @@ fun ActorsScreen(
                     CompactLandscapeScreenActors(
                         acteurs = acteurs,
                         gridState = actorGridState,
-                        onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
-                        viewModel = viewModel,
                         onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
                         onNavigateToSeries = onNavigateToSeries,
                         onNavigateToActors = onNavigateToActors,
@@ -165,21 +163,7 @@ fun ActorsScreen(
                     )
                 }
             }
-            LazyVerticalGrid(
-                state = actorGridState,
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                if (acteurs.isEmpty()) {
-                    item {
-                        Text(text = "Aucuns acteurs trouvés.")
-                    }
-                } else {
-                    items(acteurs) { actor ->
-                        ActorItem(actor)
-                    }
-                }
-            }
+
 
         }
     }
@@ -203,7 +187,7 @@ fun ActorItem(actors: Acteur) {
                 .height(200.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.surface),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.FillBounds
         )
         Text(text = actors.original_name)
 
@@ -214,9 +198,7 @@ fun ActorItem(actors: Acteur) {
 fun CompactPortraitScreenActors(
     acteurs: List<Acteur>,
     gridState: LazyGridState,
-    onSerieClick: (Int) -> Unit,
     viewModel: MainViewModel,
-    navController: NavController,
 
     ) {
     var isSearchVisible by remember { mutableStateOf(false) }
@@ -235,7 +217,7 @@ fun CompactPortraitScreenActors(
                 searchText = newQuery
             },
             onSearch = { query ->
-                Log.v("querySerie", "Search Query Submitted: $query")
+                Log.v("queryActors", "Search Query Submitted: $query")
                 if (query.isEmpty()) {
                     viewModel.getTrendingPerson()
                 } else {
@@ -248,7 +230,8 @@ fun CompactPortraitScreenActors(
             state = gridState,
             columns = GridCells.Fixed(2),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxSize()
         ) {
             items(acteurs) { actor ->
                 ActorItem(actor)
@@ -262,14 +245,10 @@ fun CompactLandscapeScreenActors(
     navController: NavController,
     acteurs:List<Acteur>,
     gridState: LazyGridState,
-    onSerieClick: (Int) -> Unit,
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
-    viewModel: MainViewModel
 ) {
-    var isSearchVisible by remember { mutableStateOf(false) }
-    var searchText by remember { mutableStateOf("") }
 
     Row(
         modifier = Modifier.fillMaxSize(),
@@ -282,7 +261,8 @@ fun CompactLandscapeScreenActors(
             onNavigateToSeries = onNavigateToSeries,
             onNavigateToActors = onNavigateToActors,
             onNavigateToProfil = { navController.navigate("profil") },
-            navController = navController
+            navController = navController,
+            onNavigateToHorror = { navController.navigate("horror") }
         )
 
         // Section principale avec barre de recherche et grille

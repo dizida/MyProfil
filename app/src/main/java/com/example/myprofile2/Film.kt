@@ -73,6 +73,7 @@ fun FilmScreen(
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
     onNavigateToFilm: () -> Unit,
+    onNavigateToHorror: () -> Unit,
     viewModel: MainViewModel,
     windowSizeClass: WindowSizeClass
 ) {
@@ -123,7 +124,8 @@ fun FilmScreen(
                     onNavigateToFilm = {navController.navigate("film")},
                     onNavigateToSeries = {navController.navigate("series")},
                     onNavigateToActors = {navController.navigate("actors")},
-                    onNavigateToProfil = onNavigateToProfilScreen
+                    onNavigateToProfil = onNavigateToProfilScreen,
+                    onNavigateToHorror = {navController.navigate("horror")}
                 )
             }
         }
@@ -146,9 +148,9 @@ fun FilmScreen(
                 },
                 onSearch = { query ->
                     if (query.isEmpty()) {
-                        viewModel.getPopularSeries()
+                        viewModel.getTrendingMovies()
                     } else {
-                        viewModel.searchSeries(query)
+                        viewModel.searchFilms(query)
                     }
                 },
             )
@@ -172,6 +174,7 @@ fun FilmScreen(
                             onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
                             onNavigateToSeries = onNavigateToSeries,
                             onNavigateToActors = onNavigateToActors,
+                            onNavigateToHorror = {navController.navigate("horror")},
                             navController = navController
                         )
                     }
@@ -216,7 +219,7 @@ fun MovieItem(movie: Movie, onClick: (Int) -> Unit) {
                 .height(200.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.surface),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.FillBounds
         )
         Text(text = movie.title)
         Text(text = formattedDate)
@@ -260,6 +263,7 @@ fun CompactLandscapeScreen(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
+    onNavigateToHorror: () -> Unit,
     viewModel: MainViewModel
 ) {
 
@@ -274,7 +278,8 @@ fun CompactLandscapeScreen(
             onNavigateToFilm = onNavigateToFilm,
             onNavigateToSeries = onNavigateToSeries,
             onNavigateToActors = onNavigateToActors,
-            onNavigateToProfil = { navController.navigate("profil") }
+            onNavigateToProfil = { navController.navigate("profil") },
+            onNavigateToHorror = onNavigateToHorror
         )
 
         // Section principale avec barre de recherche et grille

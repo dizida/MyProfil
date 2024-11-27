@@ -56,6 +56,23 @@ data class Serie(
     val vote_average: Double,
     val vote_count: Int
 )
+data class TmdbResultHorror(
+    val page: Int = 0,
+    val results: List<Horror> = listOf(),
+    val total_pages: Int = 0,
+    val total_results: Int = 0
+)
+
+data class Horror(
+    val adult: Boolean = false,
+    val backdrop_path: String = "",
+    val id: Int = 0,
+    val name: String = "",
+    val original_language: String = "",
+    val original_name: String = "",
+    val overview: String = "",
+    val poster_path: String = ""
+)
 
 // Classe de données représentant le résultat de l'API pour les images d'une série
 data class SerieImageResult(
@@ -217,3 +234,4 @@ data class SpokenLanguage(
     val iso_639_1: String = "",
     val name: String = ""
 )
+

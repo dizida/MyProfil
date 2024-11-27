@@ -45,6 +45,9 @@ interface TmdbAPI {
         @Query("language") language: String ="fr"
     ): DetailsDeLaSerie
 
+    @GET("search/collection")
+    suspend fun getHorrorCollection(@Query("api_key") apiKey: String, @Query("query") motcle: String): TmdbResultHorror
+
 
 
 }

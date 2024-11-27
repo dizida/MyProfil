@@ -25,6 +25,7 @@ fun Sidebar(
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
     onNavigateToProfil: () -> Unit,
+    onNavigateToHorror: () -> Unit
 
 ) {
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination
@@ -32,6 +33,7 @@ fun Sidebar(
     val isSeries = currentDestination?.route == "series"
     val isActors = currentDestination?.route == "actors"
     val isProfil = currentDestination?.route == "profil"
+    val isHorror = currentDestination?.route == "horror"
 
     Column(
         modifier = Modifier
@@ -62,6 +64,7 @@ fun Sidebar(
                 )
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
         Box(
             modifier = Modifier
                 .clickable(onClick = {
@@ -121,6 +124,27 @@ fun Sidebar(
                 )
                 Text(
                     text = "Acteurs",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Box(
+            modifier = Modifier
+                .clickable(onClick = { onNavigateToActors() })
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Horror",
+                    tint = if (isHorror) Color.Yellow else Color.White
+                )
+                Text(
+                    text = "Horror",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White
                 )

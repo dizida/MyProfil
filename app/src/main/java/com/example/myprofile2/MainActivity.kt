@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
 fun AppNavHost(viewModel: MainViewModel) {
     val navController = rememberNavController()
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-    NavHost(navController = navController, startDestination = "profil") {
+    NavHost(navController = navController, startDestination = "film") {
 
         composable("profil") {
             ProfilScreen(
@@ -60,6 +60,9 @@ fun AppNavHost(viewModel: MainViewModel) {
                     Log.v("navigationFilm","Navigating to film")
                     navController.navigate("film")
                 },
+                onNavigateToHorror = {
+                    navController.navigate("horror")
+                },
 
                 viewModel = viewModel,
 
@@ -84,6 +87,9 @@ fun AppNavHost(viewModel: MainViewModel) {
                 onNavigateToActors = {
                     navController.navigate("actors")
                 },
+                onNavigateToHorror = {
+                    navController.navigate("horror")
+                },
 
                 viewModel = viewModel,
                 windowSizeClass = windowSizeClass
@@ -107,6 +113,9 @@ fun AppNavHost(viewModel: MainViewModel) {
                 onNavigateToActors = {
                     navController.navigate("actors")
                 },
+                onNavigateToHorror = {
+                    navController.navigate("horror")
+                },
 
                 viewModel = viewModel,
                 windowSizeClass = windowSizeClass
@@ -129,6 +138,32 @@ fun AppNavHost(viewModel: MainViewModel) {
             } else {
                 Text("Erreur : ID de la série manquant.")
             }
+        }
+
+        composable("horror") {
+            HorrorScreen(
+                navController = navController,
+                onNavigateToFilm = {
+                    Log.v("navigationFilm","Navigating to film")
+                    navController.navigate("film")
+                },
+                onNavigateToProfilScreen = {
+                    Log.v("navigationProfil","Navigating to profil")
+                    navController.navigate("profil")
+                },
+                onNavigateToSeries = {
+                    navController.navigate("series")
+                },
+                onNavigateToActors = {
+                    navController.navigate("actors")
+                },
+                onNavigateToHorror = {
+                    navController.navigate("horror")
+                },
+
+                viewModel = viewModel,
+
+            )
         }
 
     }
@@ -156,7 +191,8 @@ fun FilmScreenPreview() {
             onNavigateToActors = {},
             viewModel = MainViewModel(),
             windowSizeClass = windowSizeClass,
-            onNavigateToFilm = {}
+            onNavigateToFilm = {},
+            onNavigateToHorror = {}
         )
     }
 }
@@ -174,7 +210,8 @@ fun SerieScreenPreview() {
             onNavigateToFilm = {},
             onNavigateToActors = {},
             viewModel = MainViewModel(),
-            windowSizeClass = windowSizeClass
+            windowSizeClass = windowSizeClass,
+            onNavigateToHorror = {}
         )
     }
 }

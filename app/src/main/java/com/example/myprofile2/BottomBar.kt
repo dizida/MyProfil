@@ -45,13 +45,15 @@ fun BottomBar(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
-    onNavigateToProfil: () -> Unit
+    onNavigateToProfil: () -> Unit,
+    onNavigateToHorror: () -> Unit
 ) {
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination
     val isFilm = currentDestination?.route == "film"
     val isSeries = currentDestination?.route == "series"
     val isActors = currentDestination?.route == "actors"
     val isProfil = currentDestination?.route == "profil"
+    val isHorror = currentDestination?.route == "horror"
 
     Row(
         modifier = Modifier
@@ -88,6 +90,12 @@ fun BottomBar(
             icon = Icons.Default.Person,
             isSelected = isActors,
             onClick = onNavigateToActors
+        )
+        BottomBarItem(
+            label = "Horror",
+            icon = Icons.Default.Person,
+            isSelected = isHorror,
+            onClick = onNavigateToHorror
         )
 
     }

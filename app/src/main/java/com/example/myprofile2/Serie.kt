@@ -65,6 +65,7 @@ fun SerieScreen(navController: NavController,
                 onNavigateToFilm: () -> Unit,
                 onNavigateToSeries: () -> Unit,
                 onNavigateToActors: () -> Unit,
+                onNavigateToHorror: () -> Unit,
                 viewModel: MainViewModel,
                 windowSizeClass: WindowSizeClass
 ) {
@@ -118,7 +119,8 @@ fun SerieScreen(navController: NavController,
                     onNavigateToFilm = {},
                     onNavigateToSeries = onNavigateToSeries,
                     onNavigateToActors = onNavigateToActors,
-                    onNavigateToProfil = onNavigateToProfilScreen
+                    onNavigateToProfil = onNavigateToProfilScreen,
+                    onNavigateToHorror = onNavigateToHorror
                 )
             }
         }
@@ -152,8 +154,7 @@ fun SerieScreen(navController: NavController,
                         series = series,
                         gridState = serieGridState,
                         onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
-                        viewModel = viewModel,
-                        navController = navController
+
                     )
                 }
 
@@ -162,10 +163,10 @@ fun SerieScreen(navController: NavController,
                         series = series,
                         gridState = serieGridState,
                         onSerieClick = { serieId: Int -> navController.navigate("serieDetail/$serieId") },
-                        viewModel = viewModel,
                         onNavigateToFilm = onNavigateToFilm, // Passez les fonctions de navigation appropriées ici
                         onNavigateToSeries = onNavigateToSeries,
                         onNavigateToActors = onNavigateToActors,
+                        onNavigateToHorror = onNavigateToHorror,
                         navController = navController
                     )
                 }
@@ -194,7 +195,7 @@ fun SerieItem(serie: Serie, onClick: (Int) -> Unit) {
                 .height(200.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.surface),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.FillBounds
         )
         Text(text = serie.original_name)
         Text(text = formattedDate)
@@ -202,86 +203,13 @@ fun SerieItem(serie: Serie, onClick: (Int) -> Unit) {
 }
 
 
-@Composable
-fun SerieBottomNavigationBar(
-    navController: NavController,
-    onNavigateToFilm: () -> Unit,
-    onNavigateToSeries: () -> Unit,
-    onNavigateToActors: () -> Unit
-) {
-    val currentDestination = navController.currentBackStackEntryAsState().value?.destination
-    val isFilm = currentDestination?.route == "film"
-    val isSeries = currentDestination?.route == "series"
-    val isActors = currentDestination?.route == "actors"
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Bouton Film
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            IconButton(onClick = onNavigateToFilm) {
-                Icon(
-                    imageVector = Icons.Default.Movie,
-                    contentDescription = "Films",
-                    tint = if (isFilm) Color.Yellow else Color.White
-                )
-            }
-            Text(
-                text = "Films",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isFilm) Color.Yellow else Color.White
-            )
-        }
-
-        // Bouton Série
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            IconButton(onClick = onNavigateToSeries) {
-                Icon(
-                    imageVector = Icons.Default.Tv,
-                    contentDescription = "Séries",
-                    tint = if (isSeries) Color.Yellow else Color.White
-                )
-            }
-            Text(
-                text = "Séries",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isSeries) Color.Yellow else Color.White
-            )
-        }
-
-        // Bouton Acteurs
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            IconButton(onClick = onNavigateToActors) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Acteurs",
-                    tint = if (isActors) Color.Yellow else Color.White
-                )
-            }
-            Text(
-                text = "Acteurs",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isActors) Color.Yellow else Color.White
-            )
-        }
-    }
-}
 
 @Composable
 fun CompactPortraitScreenSeries(
     series: List<Serie>,
     gridState: LazyGridState,
     onSerieClick: (Int) -> Unit,
-    viewModel: MainViewModel,
-    navController: NavController,
 
     ) {
 
@@ -313,7 +241,7 @@ fun CompactLandscapeScreenSeries(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
-    viewModel: MainViewModel
+    onNavigateToHorror: () -> Unit
 ) {
 
 
@@ -328,7 +256,8 @@ fun CompactLandscapeScreenSeries(
             onNavigateToSeries = onNavigateToSeries,
             onNavigateToActors = onNavigateToActors,
             navController = navController,
-            onNavigateToProfil = { navController.navigate("profil") }
+            onNavigateToProfil = { navController.navigate("profil") },
+            onNavigateToHorror = onNavigateToHorror
         )
 
         // Section principale avec barre de recherche et grille
