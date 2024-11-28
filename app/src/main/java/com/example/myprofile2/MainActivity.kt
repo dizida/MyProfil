@@ -145,6 +145,7 @@ fun AppNavHost(viewModel: MainViewModel) {
                 },
 
                 viewModel = viewModel,
+                windowSizeClass = windowSizeClass
             )
         }
 

@@ -172,7 +172,8 @@ fun FilmScreen(
                             onNavigateToFilm = onNavigateToFilm,
                             onNavigateToSeries = onNavigateToSeries,
                             onNavigateToActors = onNavigateToActors,
-                            navController = navController
+                            navController = navController,
+                            onNavigateToPlaylist = onNavigateToPlaylist
                         )
                     }
                 }
@@ -259,6 +260,7 @@ fun CompactLandscapeScreen(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
+    onNavigateToPlaylist: () -> Unit
 ) {
 
     Row(
@@ -272,7 +274,9 @@ fun CompactLandscapeScreen(
             onNavigateToFilm = onNavigateToFilm,
             onNavigateToSeries = onNavigateToSeries,
             onNavigateToActors = onNavigateToActors,
-            onNavigateToProfil = { navController.navigate("profil") }
+            onNavigateToPlaylist = onNavigateToPlaylist,
+            onNavigateToProfil = { navController.navigate("profil") },
+
         )
 
         // Section principale avec barre de recherche et grille

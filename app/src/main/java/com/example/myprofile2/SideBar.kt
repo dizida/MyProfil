@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Tv
@@ -25,6 +26,7 @@ fun Sidebar(
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
     onNavigateToProfil: () -> Unit,
+    onNavigateToPlaylist: () -> Unit
 
 ) {
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination
@@ -32,6 +34,7 @@ fun Sidebar(
     val isSeries = currentDestination?.route == "series"
     val isActors = currentDestination?.route == "actors"
     val isProfil = currentDestination?.route == "profil"
+    val isPlaylist = currentDestination?.route == "playlist"
 
     Column(
         modifier = Modifier
@@ -121,6 +124,26 @@ fun Sidebar(
                 )
                 Text(
                     text = "Acteurs",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Box(
+            modifier = Modifier
+                .clickable(onClick = { onNavigateToPlaylist() })
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Default.AddReaction,
+                    contentDescription = "Playlist",
+                    tint = if (isPlaylist) Color.Yellow else Color.White
+                )
+                Text(
+                    text = "Playlist",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White
                 )

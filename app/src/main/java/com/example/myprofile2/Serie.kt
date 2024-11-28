@@ -166,7 +166,8 @@ fun SerieScreen(navController: NavController,
                         onNavigateToFilm = onNavigateToFilm,
                         onNavigateToSeries = onNavigateToSeries,
                         onNavigateToActors = onNavigateToActors,
-                        navController = navController
+                        navController = navController,
+                        onNavigateToPlaylist = onNavigateToPlaylist
                     )
                 }
             }
@@ -238,6 +239,7 @@ fun CompactLandscapeScreenSeries(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
+    onNavigateToPlaylist: () -> Unit
 
 ) {
 
@@ -253,7 +255,8 @@ fun CompactLandscapeScreenSeries(
             onNavigateToSeries = onNavigateToSeries,
             onNavigateToActors = onNavigateToActors,
             navController = navController,
-            onNavigateToProfil = { navController.navigate("profil") }
+            onNavigateToProfil = { navController.navigate("profil") },
+            onNavigateToPlaylist = onNavigateToPlaylist
         )
 
         // Section principale avec barre de recherche et grille
