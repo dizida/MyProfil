@@ -63,7 +63,10 @@ fun AppNavHost(viewModel: MainViewModel) {
 
                 viewModel = viewModel,
 
-                windowSizeClass = windowSizeClass
+                windowSizeClass = windowSizeClass,
+                onNavigateToPlaylist = {
+                    navController.navigate("playlist")
+                },
             )
         }
 
@@ -86,7 +89,10 @@ fun AppNavHost(viewModel: MainViewModel) {
                 },
 
                 viewModel = viewModel,
-                windowSizeClass = windowSizeClass
+                windowSizeClass = windowSizeClass,
+                onNavigateToPlaylist = {
+                    navController.navigate("playlist")
+                },
             )
         }
 
@@ -108,8 +114,37 @@ fun AppNavHost(viewModel: MainViewModel) {
                     navController.navigate("actors")
                 },
 
+
                 viewModel = viewModel,
-                windowSizeClass = windowSizeClass
+                windowSizeClass = windowSizeClass,
+                onNavigateToPlaylist = {
+                    navController.navigate("playlist")
+                },
+            )
+        }
+
+        composable("playlist") {
+            PlaylistScreen(
+                navController = navController,
+                onNavigateToPlaylist = {
+                    navController.navigate("playlist")
+                },
+                onNavigateToFilm = {
+                    Log.v("navigationFilm","Navigating to film")
+                    navController.navigate("film")
+                    Log.v("navigationFilm","After navigating to film")
+                },
+                onNavigateToProfilScreen = {
+                    navController.navigate("profil")
+                },
+                onNavigateToSeries = {
+                    navController.navigate("series")
+                },
+                onNavigateToActors = {
+                    navController.navigate("actors")
+                },
+
+                viewModel = viewModel,
             )
         }
 
@@ -156,7 +191,8 @@ fun FilmScreenPreview() {
             onNavigateToActors = {},
             viewModel = MainViewModel(),
             windowSizeClass = windowSizeClass,
-            onNavigateToFilm = {}
+            onNavigateToFilm = {},
+            onNavigateToPlaylist = {}
         )
     }
 }
@@ -174,7 +210,8 @@ fun SerieScreenPreview() {
             onNavigateToFilm = {},
             onNavigateToActors = {},
             viewModel = MainViewModel(),
-            windowSizeClass = windowSizeClass
+            windowSizeClass = windowSizeClass,
+            onNavigateToPlaylist = {}
         )
     }
 }

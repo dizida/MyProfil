@@ -57,6 +57,7 @@ fun ActorsScreen(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
+    onNavigateToPlaylist: () -> Unit,
     viewModel: MainViewModel,
     windowSizeClass: WindowSizeClass
 ) {
@@ -109,7 +110,8 @@ fun ActorsScreen(
                     onNavigateToFilm = {},
                     onNavigateToSeries = onNavigateToSeries,
                     onNavigateToActors = onNavigateToActors,
-                    onNavigateToProfil = onNavigateToProfilScreen
+                    onNavigateToProfil = onNavigateToProfilScreen,
+                    onNavigateToPlaylist = onNavigateToPlaylist
                 )
             }
         }

@@ -66,6 +66,7 @@ fun SerieScreen(navController: NavController,
                 onNavigateToSeries: () -> Unit,
                 onNavigateToActors: () -> Unit,
                 viewModel: MainViewModel,
+                onNavigateToPlaylist: () -> Unit,
                 windowSizeClass: WindowSizeClass
 ) {
 
@@ -118,7 +119,8 @@ fun SerieScreen(navController: NavController,
                     onNavigateToFilm = {},
                     onNavigateToSeries = onNavigateToSeries,
                     onNavigateToActors = onNavigateToActors,
-                    onNavigateToProfil = onNavigateToProfilScreen
+                    onNavigateToProfil = onNavigateToProfilScreen,
+                    onNavigateToPlaylist = onNavigateToPlaylist
                 )
             }
         }

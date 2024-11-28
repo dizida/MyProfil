@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -45,13 +46,16 @@ fun BottomBar(
     onNavigateToFilm: () -> Unit,
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
-    onNavigateToProfil: () -> Unit
+    onNavigateToProfil: () -> Unit,
+    onNavigateToPlaylist: () -> Unit
 ) {
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination
     val isFilm = currentDestination?.route == "film"
     val isSeries = currentDestination?.route == "series"
     val isActors = currentDestination?.route == "actors"
     val isProfil = currentDestination?.route == "profil"
+    val isPlaylist = currentDestination?.route == "playlist"
+
 
     Row(
         modifier = Modifier
@@ -88,6 +92,12 @@ fun BottomBar(
             icon = Icons.Default.Person,
             isSelected = isActors,
             onClick = onNavigateToActors
+        )
+        BottomBarItem(
+            label = "Playlist",
+            icon = Icons.Default.AddReaction,
+            isSelected = isPlaylist,
+            onClick = onNavigateToPlaylist
         )
 
     }

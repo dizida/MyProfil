@@ -73,6 +73,7 @@ fun FilmScreen(
     onNavigateToSeries: () -> Unit,
     onNavigateToActors: () -> Unit,
     onNavigateToFilm: () -> Unit,
+    onNavigateToPlaylist: () -> Unit,
     viewModel: MainViewModel,
     windowSizeClass: WindowSizeClass
 ) {
@@ -123,7 +124,8 @@ fun FilmScreen(
                     onNavigateToFilm = {navController.navigate("film")},
                     onNavigateToSeries = {navController.navigate("series")},
                     onNavigateToActors = {navController.navigate("actors")},
-                    onNavigateToProfil = onNavigateToProfilScreen
+                    onNavigateToProfil = onNavigateToProfilScreen,
+                    onNavigateToPlaylist = onNavigateToPlaylist
                 )
             }
         }
